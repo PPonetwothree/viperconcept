@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIPER — Command Console (Simulation)</title>
+  <link rel="stylesheet" href="/src/styles/main.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6z' fill='%23202328' stroke='%237fa7c9' stroke-width='1.5'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header id="topbar">
+    <div class="logo" title="Vigilant Infrastructure Protection & Emergency Response">
+      <svg viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6z" fill="#202328" stroke="#7fa7c9" stroke-width="1.5"/><path d="M7 9l5 8 5-8" fill="none" stroke="#e3e5e8" stroke-width="1.6"/></svg>
+      <div>VIPER<small>Infrastructure Protection &amp; Emergency Response</small></div>
+    </div>
+    <span class="badge sim" title="Every reading, entity and incident is synthetic. No hardware is connected.">SIMULATION MODE</span>
+    <span class="badge" id="sys-status"><span class="dot"></span><span>connecting…</span></span>
+    <nav id="nav"></nav>
+    <div class="spacer"></div>
+    <label class="field">Site
+      <select id="env-select" title="Infrastructure environment"></select>
+    </label>
+    <label class="field">Operator
+      <input type="text" id="operator" size="10" maxlength="64" placeholder="name" title="Recorded on every operator action">
+    </label>
+    <div class="clock mono" title="Wall clock = host system time (stored as UTC). Sim clock = simulated elapsed time.">
+      <div class="big" id="clock-local">--:--:--</div>
+      <div class="sub" id="clock-utc">UTC --</div>
+    </div>
+    <div class="clock mono" title="Simulation clock (T+ since reset) and speed">
+      <div class="big" id="clock-sim">T+00:00:00</div>
+      <div class="sub" id="clock-sim-sub">sim · stopped</div>
+    </div>
+  </header>
+  <main id="app"></main>
+  <div class="toast-host" id="toasts"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
