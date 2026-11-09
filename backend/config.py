@@ -36,7 +36,8 @@ def _float(name: str, default: float) -> float:
 
 
 HOST = os.environ.get("VIPER_HOST", "127.0.0.1")
-PORT = int(_float("VIPER_PORT", 8000))
+# Hosting platforms such as Render set PORT; VIPER_PORT takes precedence if both are set.
+PORT = int(_float("VIPER_PORT", _float("PORT", 8000)))
 DB_PATH = Path(os.environ.get("VIPER_DB_PATH", str(BACKEND_DIR / "data" / "viper.db")))
 DEFAULT_ENVIRONMENT = os.environ.get("VIPER_DEFAULT_ENVIRONMENT", "airport")
 TICK_HZ = _float("VIPER_TICK_HZ", 5.0)

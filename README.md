@@ -27,6 +27,15 @@ python -m pytest -q
 
 Optional configuration: copy `backend\.env.example` to `backend\.env` and edit (port, tick rate, correlation window, heartbeat timeout, random seed, ambient event rate). The database lives at `backend\data\viper.db`; delete it to start with an empty history.
 
+## Deploying online (Render)
+
+VIPER needs a running Python process (REST API, WebSocket feed, simulation loop), so static hosts such as Netlify or GitHub Pages cannot run it — they will show 404 or an empty dashboard. The repo includes a `render.yaml` Blueprint for [Render](https://render.com):
+
+1. render.com → **New → Blueprint** → connect this GitHub repository → **Apply**.
+2. Open the `*.onrender.com` URL once the build finishes (a few minutes).
+
+Notes: the free instance sleeps after ~15 min idle (first request then takes ~30–60 s); incident history is stored on an ephemeral disk and resets on restart. There is **no authentication** — anyone with the URL can act as an operator. That is acceptable for a simulation demo but nothing more.
+
 ## A 3-minute walkthrough
 
 1. **Command** tab. Type an operator name (top bar). The simulation is already running: patrols and authorised vehicles move, and their observations are logged as *normal activity* (info). That shows that a sensor firing is not treated as a threat by default.
