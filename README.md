@@ -36,7 +36,7 @@ The repo includes `netlify.toml`, so connecting the GitHub repo is enough:
 1. Netlify → **Add new site → Import an existing project** → GitHub → this repository.
 2. Leave the build settings as detected (`netlify.toml`: build `python3 backend/tools/build_static.py`, publish `dist`) → **Deploy**.
 
-To build or check the static site yourself: `python backend	oolsuild_static.py`, then `python -m http.server 8001 -d dist` and open http://127.0.0.1:8001.
+To build or check the static site yourself: `python backend\tools\build_static.py`, then `python -m http.server 8001 -d dist` and open http://127.0.0.1:8001.
 
 Notes for the hosted build: the first visit downloads ≈10 MB (Pyodide, cached afterwards) and takes a few seconds to start; each visitor gets their own independent simulation; incident history is in memory and resets when the tab is reloaded; the simulation runs only while the tab is open; there is no authentication (it is a single-user demo).
 
