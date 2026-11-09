@@ -1,5 +1,5 @@
 // Module F — timestamp-based event engine views: live timeline + incident detail.
-import { api } from '../core/api.js';
+import { api, downloadApi } from '../core/api.js';
 import { on, state } from '../core/store.js';
 import { clear, fmtLocal, fmtMs, fmtSim, fmtUTC, h, humanize, sevBadge } from '../core/util.js';
 import { actionsBar, lifecycleBar, lifecycleTable, obsTable, rulesList, statusKV } from '../components/incident.js';
@@ -46,8 +46,8 @@ export function incidentsView() {
           sel('scope', [['all', 'all sites']], 'current site'),
           h('input', { type: 'search', placeholder: 'search event ID / text', oninput: (e) => { f.q = e.target.value.trim(); reload(); } }),
           h('span', { class: 'spacer' }), count,
-          h('a', { class: 'btn sm', href: '/api/export?format=csv', download: true }, 'Export CSV'),
-          h('a', { class: 'btn sm', href: '/api/export?format=json', download: true }, 'Export JSON')),
+          h('button', { class: 'btn sm', onclick: () => downloadApi('/api/export?format=csv', 'viper_events.csv').catch(errorToast) }, 'Export CSV'),
+          h('button', { class: 'btn sm', onclick: () => downloadApi('/api/export?format=json', 'viper_events.json').catch(errorToast) }, 'Export JSON')),
         h('div', { class: 'panel scroll', style: { maxHeight: 'calc(100vh - 230px)' } },
           h('table', {}, h('thead', {}, h('tr', {}, ['Event ID', 'UTC timestamp', 'Local timestamp', 'Sim clock', 'Sensor', 'Type', 'Zone', 'Category', 'Severity', 'Evidence', 'Description', 'Processing', 'Verification', 'Ack', 'Resolution'].map((x) => h('th', {}, x)))), tbody))));
       load();
@@ -70,8 +70,8 @@ export function incidentPage() {
         clear(body).append(
           h('div', { class: 'row wrap' }, h('a', { href: '#/incidents', class: 'btn sm' }, '‹ Timeline'), sevBadge(ev.severity), h('h2', { class: 'mono' }, ev.event_id), h('span', { class: 'dim' }, `${ev.category_label} · ${ev.classification}`),
             h('span', { class: 'spacer' }),
-            h('a', { class: 'btn sm', href: `/api/events/${ev.event_id}/report?format=md`, download: true }, 'Incident report (.md)'),
-            h('a', { class: 'btn sm', href: `/api/events/${ev.event_id}/report?format=json`, download: true }, 'Report (.json)'),
+            h('button', { class: 'btn sm', onclick: () => downloadApi(`/api/events/${ev.event_id}/report?format=md`, `${ev.event_id}.md`).catch(errorToast) }, 'Incident report (.md)'),
+            h('button', { class: 'btn sm', onclick: () => downloadApi(`/api/events/${ev.event_id}/report?format=json`, `${ev.event_id}.json`).catch(errorToast) }, 'Report (.json)'),
             h('a', { class: 'btn sm', href: `#/fusion/${ev.event_id}` }, 'Fusion analysis ›')),
           h('div', { class: 'note' }, 'Simulated incident. Evidence score is a rule-based measure of corroboration, not the probability that a real threat exists.'),
           h('section', { class: 'panel body' }, h('h3', {}, 'Lifecycle — Detection → Data processing → Classification → Alert → Operator review → Response → Resolution'), lifecycleBar(ev), actionsBar(ev)),

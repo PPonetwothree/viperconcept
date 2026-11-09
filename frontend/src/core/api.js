@@ -1,19 +1,28 @@
 // REST client. Throws Error with the server's `detail` message on failure.
 
+import { request } from './transport.js';
+
 async function req(method, path, body) {
-  const res = await fetch(path, {
-    method,
-    headers: body ? { 'Content-Type': 'application/json' } : {},
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const ct = res.headers.get('content-type') || '';
-  const data = ct.includes('json') ? await res.json() : await res.text();
-  if (!res.ok) {
+  const res = await request(method, path, body);
+  const data = res.type.includes('json') ? JSON.parse(res.body) : res.body;
+  if (res.status < 200 || res.status >= 300) {
     let msg = typeof data === 'object' ? data.detail : data;
     if (Array.isArray(msg)) msg = msg.map((d) => `${(d.loc || []).slice(1).join('.')}: ${d.msg}`).join('; ');
-    throw new Error(msg || `${res.status} ${res.statusText}`);
+    throw new Error(msg || `${res.status} ${res.statusText || ''}`.trim());
   }
   return data;
+}
+
+/** Fetch an API resource and save it as a file (works with or without a server). */
+export async function downloadApi(path, filename) {
+  const res = await request('GET', path);
+  if (res.status !== 200) throw new Error(`download failed (HTTP ${res.status})`);
+  const url = URL.createObjectURL(new Blob([res.body], { type: res.type.split(';')[0] || 'application/octet-stream' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 const qs = (o) => {

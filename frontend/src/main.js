@@ -3,6 +3,7 @@ import { api } from './core/api.js';
 import { emit, on, select, state, upsertEvent } from './core/store.js';
 import { fmtLocal, fmtSim, fmtUTC, h } from './core/util.js';
 import { connect } from './core/ws.js';
+import { initTransport } from './core/transport.js';
 import { errorToast, toast } from './components/ui.js';
 import { commandView } from './dashboards/command.js';
 import { architectureView } from './schematics/architecture.js';
@@ -126,6 +127,18 @@ async function boot() {
   const op = document.getElementById('operator');
   try { op.value = localStorage.getItem('viper.operator') || ''; } catch { /* storage blocked */ }
   op.addEventListener('change', () => { try { localStorage.setItem('viper.operator', op.value.trim()); } catch { /* ignore */ } });
+
+  const app = document.getElementById('app');
+  const loading = h('div', { class: 'page' }, h('div', { class: 'note' }, 'Connecting to VIPER backend…'));
+  app.append(loading);
+  try {
+    const mode = await initTransport((msg) => { loading.firstChild.textContent = `No VIPER server found — running the simulation engine in this browser tab. ${msg}`; });
+    state.engine = mode;
+  } catch (e) {
+    loading.firstChild.textContent = `Could not start the in-browser simulation engine: ${e.message}. Run locally instead: python backend\\main.py`;
+    return;
+  }
+  loading.remove();
 
   try {
     const [meta, envs, devices, snap] = await Promise.all([api.meta(), api.environments(), api.devices(), api.state()]);

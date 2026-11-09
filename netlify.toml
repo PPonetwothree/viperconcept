@@ -1,0 +1,8 @@
+# Netlify: static build. There is no server — the simulation engine (the same
+# Python backend) runs in each visitor's browser via Pyodide/WebAssembly.
+[build]
+  command = "python3 backend/tools/build_static.py"
+  publish = "dist"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"

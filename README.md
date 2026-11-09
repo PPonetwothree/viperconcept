@@ -27,14 +27,18 @@ python -m pytest -q
 
 Optional configuration: copy `backend\.env.example` to `backend\.env` and edit (port, tick rate, correlation window, heartbeat timeout, random seed, ambient event rate). The database lives at `backend\data\viper.db`; delete it to start with an empty history.
 
-## Deploying online (Render)
+## Deploying online (Netlify)
 
-VIPER needs a running Python process (REST API, WebSocket feed, simulation loop), so static hosts such as Netlify or GitHub Pages cannot run it — they will show 404 or an empty dashboard. The repo includes a `render.yaml` Blueprint for [Render](https://render.com):
+Netlify serves static files only, so the hosted build has **no server**: when the page finds no VIPER backend it downloads [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly) and runs the *same* Python simulation, fusion rules, lifecycle and SQLite store inside the visitor's browser tab. Run locally with `python backend\main.py` and the page uses the real server instead — the frontend picks automatically.
 
-1. render.com → **New → Blueprint** → connect this GitHub repository → **Apply**.
-2. Open the `*.onrender.com` URL once the build finishes (a few minutes).
+The repo includes `netlify.toml`, so connecting the GitHub repo is enough:
 
-Notes: the free instance sleeps after ~15 min idle (first request then takes ~30–60 s); incident history is stored on an ephemeral disk and resets on restart. There is **no authentication** — anyone with the URL can act as an operator. That is acceptable for a simulation demo but nothing more.
+1. Netlify → **Add new site → Import an existing project** → GitHub → this repository.
+2. Leave the build settings as detected (`netlify.toml`: build `python3 backend/tools/build_static.py`, publish `dist`) → **Deploy**.
+
+To build or check the static site yourself: `python backend	oolsuild_static.py`, then `python -m http.server 8001 -d dist` and open http://127.0.0.1:8001.
+
+Notes for the hosted build: the first visit downloads ≈10 MB (Pyodide, cached afterwards) and takes a few seconds to start; each visitor gets their own independent simulation; incident history is in memory and resets when the tab is reloaded; the simulation runs only while the tab is open; there is no authentication (it is a single-user demo).
 
 ## A 3-minute walkthrough
 
@@ -78,8 +82,9 @@ VIPER/
 │   ├── event_engine/        models, fusion rules, lifecycle state machine
 │   ├── database/            SQLite store
 │   ├── devices/             device catalogue
-│   ├── tools/               documentation generator
-│   └── tests/               pytest suite (46 tests)
+│   ├── browser_bridge.py    in-browser backend for static hosting (Pyodide)
+│   ├── tools/               documentation generator, static build
+│   └── tests/               pytest suite (47 tests)
 ├── frontend/
 │   ├── index.html
 │   └── src/ (core, components, dashboards, schematics, simulation, animations, devices, data, styles)
